@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Examen de competencias ICBF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --tinta: #1C2B3A;
+    --tinta-suave: #4A5B6B;
+    --papel: #EEF2F1;
+    --blanco: #FFFFFF;
+    --linea: #C9D4D1;
+    --verde: #0E6B5C;
+    --verde-claro: #DCEFEA;
+    --ambar: #9A4B08;
+    --rojo: #A8281C;
+    --radio: 10px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--papel);
+    color: var(--tinta);
+    font: 400 1.0625rem/1.55 "Public Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  [hidden] { display: none !important; }
+  h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 .5rem; font-weight: 700; }
+  h2 { font-size: 1.25rem; margin: 0 0 .75rem; font-weight: 700; }
+  p { margin: 0 0 1rem; }
+  .suave { color: var(--tinta-suave); }
+
+  .acceso { max-width: 30rem; margin: 0 auto; padding: 3.5rem 1.25rem; }
+  .paso { font-size: .9rem; color: var(--tinta-suave); margin-bottom: 1.5rem; }
+  .panel { background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio); padding: 1.75rem; }
+
+  label.campo { display: block; font-weight: 600; margin-bottom: .4rem; }
+  input[type=email], input[type=text] {
+    width: 100%; font: inherit; padding: .75rem .9rem;
+    border: 1px solid var(--linea); border-radius: 8px; background: var(--blanco); color: var(--tinta);
+  }
+  input.codigo { font-size: 1.75rem; letter-spacing: .5em; text-align: center; font-weight: 700; }
+  input:focus-visible, button:focus-visible { outline: 3px solid var(--verde); outline-offset: 2px; }
+
+  button {
+    font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px;
+    padding: .8rem 1.2rem; border: 1px solid var(--verde); background: var(--verde); color: var(--blanco);
+  }
+  button.secundario { background: transparent; color: var(--verde); }
+  button:disabled { opacity: .55; cursor: wait; }
+  .acciones { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+  .enlace { background: none; border: 0; color: var(--verde); padding: 0; text-decoration: underline; font-weight: 600; }
+
+  .error { color: var(--rojo); font-weight: 600; margin-top: 1rem; }
+  .nota { color: var(--tinta-suave); font-size: .95rem; margin-top: 1rem; }
+
+  .autoriza { display: flex; gap: .75rem; align-items: flex-start; margin: 1rem 0 0; }
+  .autoriza input { width: 1.25rem; height: 1.25rem; margin-top: .2rem; accent-color: var(--verde); }
+
+  .visor { position: relative; border-radius: var(--radio); overflow: hidden; background: #25313D; aspect-ratio: 4 / 3; }
+  .visor video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
+  .visor.activa { box-shadow: 0 0 0 4px var(--verde); }
+  .estado-cam { display: flex; align-items: center; gap: .5rem; font-size: .9rem; font-weight: 600; margin-top: .6rem; }
+  .punto { width: .7rem; height: .7rem; border-radius: 50%; background: var(--rojo); }
+  .activa-txt .punto { background: var(--verde); animation: latido 2s ease-in-out infinite; }
+  @keyframes latido { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .activa-txt .punto { animation: none; } }
+
+  /* Prueba */
+  .prueba { display: grid; grid-template-columns: minmax(0, 44rem) 16rem; gap: 2.5rem; justify-content: center; padding: 2.5rem 1.25rem 5rem; }
+  .cabeza { margin-bottom: 2rem; }
+  .avance { font-weight: 600; color: var(--tinta-suave); }
+  fieldset { border: 0; border-top: 1px solid var(--linea); margin: 0; padding: 1.75rem 0; }
+  legend { padding: 0; font-weight: 700; font-size: 1.1rem; margin-bottom: .9rem; float: left; width: 100%; }
+  legend span { display: block; font-size: .85rem; color: var(--tinta-suave); font-weight: 600; margin-bottom: .2rem; }
+  .opcion { clear: both; display: flex; gap: .75rem; align-items: flex-start; padding: .7rem .9rem; border: 1px solid var(--linea); border-radius: 8px; background: var(--blanco); margin-bottom: .5rem; cursor: pointer; }
+  .opcion input { accent-color: var(--verde); width: 1.1rem; height: 1.1rem; margin-top: .25rem; }
+  .opcion:has(input:checked) { border-color: var(--verde); background: var(--verde-claro); }
+  .guardado { clear: both; font-size: .85rem; color: var(--tinta-suave); min-height: 1.3em; }
+  .guardado.falla { color: var(--rojo); font-weight: 600; }
+  aside { position: sticky; top: 1.5rem; align-self: start; }
+  .entrega { margin-top: 2rem; border-top: 1px solid var(--linea); padding-top: 1.75rem; }
+
+  .bloqueo { position: fixed; inset: 0; background: rgba(28, 43, 58, .92); display: grid; place-items: center; padding: 1.25rem; z-index: 10; }
+  .bloqueo .panel { max-width: 26rem; }
+  .bloqueo h2 { color: var(--ambar); }
+
+  @media (max-width: 52rem) {
+    .prueba { grid-template-columns: 1fr; gap: 0; padding-top: 1rem; }
+    aside { order: -1; position: sticky; top: 0; z-index: 5; background: var(--papel); padding: .5rem 0; display: flex; gap: .75rem; align-items: center; }
+    aside .visor { width: 6.5rem; flex: none; }
+    aside .estado-cam { margin-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Paso 1. Correo -->
+<main class="acceso" data-pantalla="correo">
+  <p class="paso">Paso 1 de 3</p>
+  <h1 class="nombre-prueba">Examen de competencias ICBF</h1>
+  <p class="suave">Escribe el correo con el que te inscribieron. Te enviaremos un código de acceso de un solo uso.</p>
+  <div class="panel">
+    <label class="campo" for="correo">Correo electrónico</label>
+    <input id="correo" type="email" autocomplete="email" placeholder="nombre@correo.com">
+    <div class="acciones"><button id="btnEnviar">Enviar código</button></div>
+    <p class="error" role="alert" hidden></p>
+  </div>
+</main>
+
+<!-- Paso 2. Código -->
+<main class="acceso" data-pantalla="codigo" hidden>
+  <p class="paso">Paso 2 de 3</p>
+  <h1>Revisa tu correo</h1>
+  <p class="suave">Enviamos un código de 6 dígitos a <b id="correoMostrado"></b>. Vence en 10 minutos. Si no aparece, busca en correo no deseado.</p>
+  <div class="panel">
+    <label class="campo" for="codigo">Código de acceso</label>
+    <input id="codigo" class="codigo" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+    <div class="acciones">
+      <button id="btnIngresar">Ingresar</button>
+      <button id="btnOtroCorreo" class="secundario">Cambiar correo</button>
+    </div>
+    <p class="nota"><button id="btnReenviar" class="enlace">Enviar otro código</button></p>
+    <p class="error" role="alert" hidden></p>
+  </div>
+</main>
+
+<!-- Paso 3. Autorización y cámara -->
+<main class="acceso" data-pantalla="camara" hidden>
+  <p class="paso">Paso 3 de 3</p>
+  <h1>Enciende tu cámara</h1>
+  <div class="panel">
+    <p>Durante todo el examen la cámara de tu computador debe permanecer encendida y descubierta, con tu rostro visible. Si la cámara se apaga o se tapa, el examen se pausa y el evento queda registrado. Se tomarán fotografías periódicas con el único fin de verificar tu identidad y la transparencia de la prueba.</p>
+    <p class="suave">Las imágenes de tu rostro son datos sensibles según la Ley 1581 de 2012. Entregarlas es voluntario, pero sin la cámara encendida no es posible presentar el examen. Responsable del tratamiento <b class="entidad"></b>.</p>
+    <div class="autoriza">
+      <input id="autorizo" type="checkbox">
+      <label for="autorizo">Autorizo la toma y el tratamiento de mis imágenes para este fin.</label>
+    </div>
+    <div class="acciones"><button id="btnCamara" disabled>Encender cámara</button></div>
+    <div id="vistaPrevia" hidden>
+      <div class="visor activa" style="margin-top:1.25rem"><video id="videoPrevio" autoplay muted playsinline></video></div>
+      <div class="acciones"><button id="btnComenzar">Comenzar examen</button></div>
+    </div>
+    <p class="error" role="alert" hidden></p>
+  </div>
+</main>
+
+<!-- Prueba -->
+<div class="prueba" data-pantalla="prueba" hidden>
+  <main>
+    <div class="cabeza">
+      <h1 class="nombre-prueba"></h1>
+      <p class="suave" id="saludo"></p>
+      <p>Selecciona una sola respuesta por pregunta.</p>
+      <p class="avance" id="avance" aria-live="polite"></p>
+    </div>
+    <form id="preguntas" onsubmit="return false"></form>
+    <div class="entrega">
+      <p class="suave">Tus respuestas se guardan cada vez que eliges una opción. Cuando termines, entrega el examen. Después de entregarlo no podrás cambiar respuestas.</p>
+      <button id="btnEntregar">Entregar examen</button>
+      <p class="error" role="alert" hidden></p>
+    </div>
+  </main>
+  <aside>
+    <div class="visor activa" id="visorPrueba"><video id="videoPrueba" autoplay muted playsinline></video></div>
+    <div class="estado-cam activa-txt" id="estadoCam"><span class="punto"></span><span>Cámara encendida</span></div>
+  </aside>
+</div>
+
+<!-- Fin -->
+<main class="acceso" data-pantalla="fin" hidden>
+  <h1>Examen entregado</h1>
+  <p class="suave">Recibimos tus respuestas. La cámara ya está apagada y puedes cerrar esta ventana.</p>
+</main>
+
+<!-- Bloqueo por cámara apagada -->
+<div class="bloqueo" id="bloqueo" hidden>
+  <div class="panel" role="alertdialog" aria-labelledby="tituloBloqueo">
+    <h2 id="tituloBloqueo">La cámara se apagó</h2>
+    <p id="textoBloqueo">El examen está en pausa y el evento quedó registrado. Enciende la cámara para continuar.</p>
+    <button id="btnReanudar">Encender cámara</button>
+    <p class="error" role="alert" hidden></p>
+  </div>
+</div>
+
+<script>
+/* ================= Configuración ================= */
+const URL_SERVICIO = 'PEGA_AQUI_LA_URL_DEL_SERVICIO';
+const SEGUNDOS_ENTRE_CAPTURAS = 60;
+/* ================================================= */
+
+const $ = s => document.querySelector(s);
+const estado = { correo: '', token: '', preguntas: [], respuestas: {}, flujo: null, enPrueba: false, bloqueada: false, timers: [] };
+
+
+function mostrar(nombre) {
+  document.querySelectorAll('[data-pantalla]').forEach(p => p.hidden = p.dataset.pantalla !== nombre);
+  window.scrollTo(0, 0);
+}
+
+function error(contenedor, msg) {
+  const e = contenedor.querySelector('.error');
+  e.textContent = msg || '';
+  e.hidden = !msg;
+}
+
+async function api(accion, datos = {}) {
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(URL_SERVICIO)) {
+    throw new Error('La dirección del servicio no está configurada. Debe empezar por https://script.google.com/macros/s/ y terminar en /exec.');
+  }
+  const r = await fetch(URL_SERVICIO, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(Object.assign({ accion }, datos))
+  });
+  const texto = await r.text();
+  let j;
+  try { j = JSON.parse(texto); }
+  catch (e) {
+    console.error('Respuesta del servicio', texto);
+    throw new Error('El servicio respondió con una página en lugar de datos. Revisa que la implementación tenga acceso para Cualquier persona y que esté publicada la última versión.');
+  }
+  if (!j.ok) throw new Error(j.error || 'No se pudo completar la acción.');
+  return j;
+}
+
+async function conBoton(boton, fn) {
+  boton.disabled = true;
+  try { await fn(); } finally { boton.disabled = false; }
+}
+
+/* ---------- Paso 1 y 2. Correo y código ---------- */
+async function enviarCodigo(boton, pantalla) {
+  error(pantalla, '');
+  await conBoton(boton, async () => {
+    try {
+      await api('solicitarCodigo', { correo: estado.correo });
+      $('#correoMostrado').textContent = estado.correo;
+      mostrar('codigo');
+      $('#codigo').value = '';
+      $('#codigo').focus();
+    } catch (e) { error(pantalla, e.message); }
+  });
+}
+
+$('#btnEnviar').onclick = () => {
+  estado.correo = $('#correo').value.trim().toLowerCase();
+  enviarCodigo($('#btnEnviar'), document.querySelector('[data-pantalla=correo]'));
+};
+$('#correo').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnEnviar').click(); });
+$('#btnReenviar').onclick = () => enviarCodigo($('#btnReenviar'), document.querySelector('[data-pantalla=codigo]'));
+$('#btnOtroCorreo').onclick = () => mostrar('correo');
+$('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnIngresar').click(); });
+
+$('#btnIngresar').onclick = () => {
+  const pantalla = document.querySelector('[data-pantalla=codigo]');
+  error(pantalla, '');
+  conBoton($('#btnIngresar'), async () => {
+    try {
+      const r = await api('verificarCodigo', { correo: estado.correo, codigo: $('#codigo').value });
+      Object.assign(estado, { token: r.token, preguntas: r.preguntas, respuestas: r.respuestas || {} });
+      document.querySelectorAll('.nombre-prueba').forEach(e => e.textContent = r.nombrePrueba);
+      document.querySelectorAll('.entidad').forEach(e => e.textContent = r.entidad);
+      $('#saludo').textContent = r.nombre ? `Participante ${r.nombre}` : estado.correo;
+      mostrar('camara');
+    } catch (e) { error(pantalla, e.message); }
+  });
+};
+
+/* ---------- Paso 3. Cámara ---------- */
+$('#autorizo').onchange = e => { $('#btnCamara').disabled = !e.target.checked; };
+
+async function encenderCamara() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error('Este navegador no permite usar la cámara. Usa Chrome, Edge o Firefox actualizados.');
+  }
+  if (estado.flujo) estado.flujo.getTracks().forEach(t => t.stop());
+  try {
+    estado.flujo = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false });
+  } catch (e) {
+    if (e.name === 'NotAllowedError') throw new Error('Bloqueaste el permiso de la cámara. Actívalo desde el candado de la barra de direcciones y vuelve a intentarlo.');
+    if (e.name === 'NotFoundError') throw new Error('No encontramos una cámara conectada a este equipo.');
+    if (e.name === 'NotReadableError') throw new Error('Otra aplicación está usando la cámara. Ciérrala y vuelve a intentarlo.');
+    throw new Error('No fue posible encender la cámara.');
+  }
+  const pista = estado.flujo.getVideoTracks()[0];
+  pista.addEventListener('ended', () => camaraPerdida('camara_apagada'));
+  $('#videoPrevio').srcObject = estado.flujo;
+  $('#videoPrueba').srcObject = estado.flujo;
+}
+
+const lienzoLuz = document.createElement('canvas');
+lienzoLuz.width = 32; lienzoLuz.height = 24;
+let lecturasOscuras = 0;
+
+/** Promedio de luz del cuadro de la cámara, de 0 (negro) a 255 (blanco). */
+function luzDeCamara() {
+  const v = $('#videoPrueba');
+  if (!v.videoWidth) return 255;
+  const ctx = lienzoLuz.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(v, 0, 0, 32, 24);
+  const px = ctx.getImageData(0, 0, 32, 24).data;
+  let suma = 0;
+  for (let i = 0; i < px.length; i += 4) suma += 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+  return suma / (px.length / 4);
+}
+
+function vigilarCamara() {
+  if (!estado.enPrueba || estado.bloqueada) return;
+  if (!camaraActiva()) { camaraPerdida('camara_apagada'); return; }
+  lecturasOscuras = luzDeCamara() < 14 ? lecturasOscuras + 1 : 0;
+  if (lecturasOscuras >= 3) { lecturasOscuras = 0; camaraPerdida('camara_tapada'); }
+}
+
+function camaraActiva() {
+  const p = estado.flujo && estado.flujo.getVideoTracks()[0];
+  return !!p && p.readyState === 'live' && p.enabled && !p.muted;
+}
+
+$('#btnCamara').onclick = () => {
+  const pantalla = document.querySelector('[data-pantalla=camara]');
+  error(pantalla, '');
+  conBoton($('#btnCamara'), async () => {
+    try {
+      await encenderCamara();
+      $('#vistaPrevia').hidden = false;
+      $('#btnComenzar').focus();
+    } catch (e) { error(pantalla, e.message); }
+  });
+};
+
+$('#btnComenzar').onclick = () => {
+  const pantalla = document.querySelector('[data-pantalla=camara]');
+  error(pantalla, '');
+  conBoton($('#btnComenzar'), async () => {
+    try {
+      // La primera foto debe quedar guardada antes de mostrar las preguntas
+      await capturar($('#videoPrevio'));
+      iniciarPrueba();
+    } catch (e) { error(pantalla, 'No pudimos registrar la foto inicial. ' + e.message); }
+  });
+};
+
+/* ---------- Prueba ---------- */
+function iniciarPrueba() {
+  pintarPreguntas();
+  mostrar('prueba');
+  estado.enPrueba = true;
+  evento('camara_encendida');
+  estado.timers.push(setInterval(() => capturar().catch(e => console.warn('Captura no guardada', e)), SEGUNDOS_ENTRE_CAPTURAS * 1000));
+  estado.timers.push(setInterval(vigilarCamara, 3000));
+}
+
+function pintarPreguntas() {
+  const f = $('#preguntas');
+  f.innerHTML = '';
+  estado.preguntas.forEach((p, i) => {
+    const fs = document.createElement('fieldset');
+    const lg = document.createElement('legend');
+    const num = document.createElement('span');
+    num.textContent = `Pregunta ${i + 1} de ${estado.preguntas.length}`;
+    lg.append(num, document.createTextNode(p.texto));
+    fs.append(lg);
+    p.opciones.forEach(o => {
+      const lab = document.createElement('label');
+      lab.className = 'opcion';
+      const inp = document.createElement('input');
+      inp.type = 'radio'; inp.name = p.id; inp.value = o.letra;
+      inp.checked = estado.respuestas[p.id] === o.letra;
+      inp.onchange = () => guardar(p.id, o.letra, fs.querySelector('.guardado'));
+      const txt = document.createElement('span');
+      txt.textContent = o.texto;
+      lab.append(inp, txt);
+      fs.append(lab);
+    });
+    const g = document.createElement('p');
+    g.className = 'guardado';
+    g.setAttribute('aria-live', 'polite');
+    if (estado.respuestas[p.id]) g.textContent = 'Respuesta guardada';
+    fs.append(g);
+    f.append(fs);
+  });
+  actualizarAvance();
+}
+
+function actualizarAvance() {
+  const n = estado.preguntas.filter(p => estado.respuestas[p.id]).length;
+  $('#avance').textContent = `${n} de ${estado.preguntas.length} preguntas respondidas`;
+}
+
+async function guardar(id, letra, aviso) {
+  aviso.classList.remove('falla');
+  aviso.textContent = 'Guardando…';
+  try {
+    await api('guardarRespuesta', { token: estado.token, idPregunta: id, respuesta: letra });
+    estado.respuestas[id] = letra;
+    aviso.textContent = 'Respuesta guardada';
+    actualizarAvance();
+  } catch (e) {
+    aviso.classList.add('falla');
+    aviso.textContent = `No se guardó. ${e.message} Vuelve a elegir la opción.`;
+  }
+}
+
+function capturar(desde) {
+  if (!camaraActiva()) return Promise.reject(new Error('La cámara no está encendida.'));
+  const v = desde || $('#videoPrueba');
+  if (!v.videoWidth) return Promise.reject(new Error('La cámara aún no muestra imagen. Espera un momento.'));
+  const c = document.createElement('canvas');
+  c.width = 320; c.height = Math.round(320 * v.videoHeight / v.videoWidth);
+  c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+  return api('guardarCaptura', { token: estado.token, imagen: c.toDataURL('image/jpeg', 0.6) });
+}
+
+function evento(nombre, detalle) {
+  if (!estado.token) return;
+  api('registrarEvento', { token: estado.token, evento: nombre, detalle: detalle || '' })
+    .catch(e => console.warn('Evento no registrado', e));
+}
+
+function camaraPerdida(motivo) {
+  if (!estado.enPrueba || estado.bloqueada) return;
+  estado.bloqueada = true;
+  const tapada = motivo === 'camara_tapada';
+  $('#tituloBloqueo').textContent = tapada ? 'No vemos la imagen de tu cámara' : 'La cámara se apagó';
+  $('#textoBloqueo').textContent = tapada
+    ? 'La imagen está oscura o tapada. El examen está en pausa y el evento quedó registrado. Destapa la cámara, busca buena luz y pulsa el botón para continuar.'
+    : 'El examen está en pausa y el evento quedó registrado. Enciende la cámara para continuar.';
+  $('#bloqueo').hidden = false;
+  $('#visorPrueba').classList.remove('activa');
+  $('#estadoCam').className = 'estado-cam';
+  $('#estadoCam span:last-child').textContent = 'Cámara apagada';
+  document.querySelectorAll('#preguntas input, #btnEntregar').forEach(i => i.disabled = true);
+  evento(tapada ? 'camara_tapada' : 'camara_apagada');
+  $('#btnReanudar').focus();
+}
+
+$('#btnReanudar').onclick = () => {
+  const panel = $('#bloqueo');
+  error(panel, '');
+  conBoton($('#btnReanudar'), async () => {
+    try {
+      await encenderCamara();
+      estado.bloqueada = false;
+      panel.hidden = true;
+      $('#visorPrueba').classList.add('activa');
+      $('#estadoCam').className = 'estado-cam activa-txt';
+      $('#estadoCam span:last-child').textContent = 'Cámara encendida';
+      document.querySelectorAll('#preguntas input, #btnEntregar').forEach(i => i.disabled = false);
+      evento('camara_reanudada');
+      capturar().catch(e => console.warn('Captura no guardada', e));
+    } catch (e) { error(panel, e.message); }
+  });
+};
+
+document.addEventListener('visibilitychange', () => {
+  if (!estado.enPrueba) return;
+  evento(document.hidden ? 'salio_de_la_pestana' : 'volvio_a_la_pestana');
+});
+
+window.addEventListener('beforeunload', e => {
+  if (estado.enPrueba) { e.preventDefault(); e.returnValue = ''; }
+});
+
+$('#btnEntregar').onclick = () => {
+  const pendientes = estado.preguntas.filter(p => !estado.respuestas[p.id]).length;
+  const msg = pendientes
+    ? `Tienes ${pendientes} pregunta(s) sin responder. ¿Entregar de todas formas?`
+    : '¿Entregar la prueba? Después no podrás cambiar respuestas.';
+  if (!confirm(msg)) return;
+  const zona = document.querySelector('.entrega');
+  error(zona, '');
+  conBoton($('#btnEntregar'), async () => {
+    try {
+      await capturar().catch(e => console.warn('Captura no guardada', e));
+      await api('finalizar', { token: estado.token });
+      estado.enPrueba = false;
+      estado.timers.forEach(clearInterval);
+      if (estado.flujo) estado.flujo.getTracks().forEach(t => t.stop());
+      mostrar('fin');
+    } catch (e) { error(zona, e.message); }
+  });
+};
+</script>
+</body>
+</html>
